@@ -1,0 +1,28 @@
+From ad38876ac2603c4b1185ac8f4f7cf2889019712b Mon Sep 17 00:00:00 2001
+From: Damian Hobson-Garcia <dhobsong@igel.co.jp>
+Date: Fri, 10 Nov 2017 19:43:45 +0900
+Subject: [PATCH] Take an extra reference to DMABUFs on exprort
+
+DMABUFs exported through the EXPBUF interface should be closed by the
+calling application when no longer necessary, so it should get its
+own reference when the buffer is exported.
+---
+ lib/libv4l-gst/gst-backend.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/libv4l-gst/gst-backend.c b/lib/libv4l-gst/gst-backend.c
+index 4d606e9..cebc561 100644
+--- a/lib/libv4l-gst/gst-backend.c
++++ b/lib/libv4l-gst/gst-backend.c
+@@ -2872,7 +2872,7 @@ int expbuf_ioctl(struct v4l_gst_priv *dev_ops_priv,
+ 			plane++;
+ 			continue;
+ 		}
+-		expbuf->fd = gst_dmabuf_memory_get_fd (mem);
++		expbuf->fd = dup(gst_dmabuf_memory_get_fd (mem));
+ 		return 0;
+ 	}
+ 	return -1;
+-- 
+2.7.4
+
